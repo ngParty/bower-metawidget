@@ -1,7 +1,6 @@
 {
   "name": "metawidget",
   "description": "User Interface widget that populates itself with UI components to match the properties of your domain objects",
-  "version": "3.9.0",
   "license": [
     "EPL-1.0",
     "LGPL-2.1"
@@ -19,5 +18,8 @@
   "repository": {
     "type": "git",
     "url": "git://github.com/metawidget/metawidget.git"
-  }
+  },
+  "ignore": [
+    "**/.*"
+  ]  
 }
