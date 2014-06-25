@@ -19,7 +19,8 @@ Add a `<script>` to your `index.html`:
 ```
 
 Other Metawidget modules, such as `metawidget-angular.min.js`
-and `metawidget-bootstrap.min.js`, are also included.
+and `metawidget-bootstrap.min.js`, are also included in this
+repo.
 
 ## Documentation
 
