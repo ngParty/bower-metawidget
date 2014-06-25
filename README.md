@@ -15,7 +15,7 @@ bower install metawidget
 Add a `<script>` to your `index.html`:
 
 ```html
-<script src="/bower_components/metawidget/metawidget.min.js"></script>
+<script src="/bower_components/metawidget/metawidget-core.min.js"></script>
 ```
 
 ## Documentation
