@@ -18,6 +18,9 @@ Add a `<script>` to your `index.html`:
 <script src="/bower_components/metawidget/metawidget-core.min.js"></script>
 ```
 
+Other Metawidget modules, such as `metawidget-angular.min.js`
+and `metawidget-bootstrap.min.js`, are also included.
+
 ## Documentation
 
 Documentation is available on the
