@@ -1,4 +1,4 @@
-// Metawidget 3.9
+// Metawidget 3.9.5-SNAPSHOT
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -335,7 +335,7 @@ var metawidget = metawidget || {};
 					continue;
 				}
 
-				var childAttributes;
+				var childAttributes = {};
 				var loop, length;
 
 				// Lookup binding attribute
@@ -361,7 +361,7 @@ var metawidget = metawidget || {};
 
 				// Manually created components default to no section
 
-				if ( childAttributes === undefined ) {
+				if ( childAttributes === undefined ) {					
 					childAttributes = {
 						section: ''
 					};
@@ -611,6 +611,11 @@ var metawidget = metawidget || {};
 						if ( child.tagName === 'INPUT' ) {
 							if ( child.getAttribute( 'type' ) === 'radio' ) {
 								child.setAttribute( 'ng-model', binding );
+								if ( child.value === true || child.value === 'true' ) {
+									child.setAttribute( 'ng-value', 'true' );
+								} else if ( child.value === false || child.value === 'false' ) {
+									child.setAttribute( 'ng-value', 'false' );
+								}
 							} else if ( child.getAttribute( 'type' ) === 'checkbox' ) {
 								child.setAttribute( 'ng-checked', binding + ".indexOf('" + child.value + "')>=0" );
 								scope.mwUpdateSelection = _updateSelection;
