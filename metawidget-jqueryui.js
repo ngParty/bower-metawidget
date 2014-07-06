@@ -1,4 +1,4 @@
-// Metawidget 3.9
+// Metawidget 3.9.5-SNAPSHOT
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -362,6 +362,15 @@ var metawidget = metawidget || {};
 			return this._pipeline.inspect( toInspect, type, names, this );
 		},
 
+		/**
+		 * Overridden to use JQuery.empty (safer for memory leaks).
+		 */
+		
+		clearWidgets: function() {
+		
+			$( this.getElement() ).empty();
+		},
+		
 		/**
 		 * Inspect the given toInspect/path and build widgets.
 		 * <p>
