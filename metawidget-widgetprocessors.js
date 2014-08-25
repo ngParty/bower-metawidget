@@ -217,7 +217,7 @@ var metawidget = metawidget || {};
 				for ( loop = 0; loop < length; loop++ ) {
 					var childNode = widget.childNodes[loop];
 					if ( childNode.tagName === 'LABEL' ) {
-						var labelChildNode = childNode.childNodes[0];
+						var labelChildNode = childNode.firstChild;
 						if ( labelChildNode.tagName === 'INPUT' ) {
 
 							// Name must be common across group
@@ -428,7 +428,7 @@ var metawidget = metawidget || {};
 				for ( var loop = 0, length = widget.childNodes.length; loop < length; loop++ ) {
 					var childNode = widget.childNodes[loop];
 					if ( childNode.tagName === 'LABEL' ) {
-						var labelChildNode = childNode.childNodes[0];
+						var labelChildNode = childNode.firstChild;
 						if ( labelChildNode.checked ) {
 
 							if ( binding.attributes.type === 'boolean' ) {

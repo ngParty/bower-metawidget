@@ -178,9 +178,9 @@ var metawidget = metawidget || {};
 				var outerDiv = container.childNodes[container.childNodes.length - 1];
 				if ( outerDiv.childNodes.length === 1 ) {
 					if ( attributes.title === null ) {
-						outerDiv.childNodes[0].setAttribute( 'class', config.widgetDivSpanAllClass );
+						outerDiv.firstChild.setAttribute( 'class', config.widgetDivSpanAllClass );
 					} else {
-						metawidget.util.appendToAttribute( outerDiv.childNodes[0], 'class', config.widgetDivOffsetClass );
+						metawidget.util.appendToAttribute( outerDiv.firstChild, 'class', config.widgetDivOffsetClass );
 					}
 				}
 			};
@@ -233,7 +233,7 @@ var metawidget = metawidget || {};
 
 		// New Tab
 
-		ul = tabs.childNodes[0];
+		ul = tabs.firstChild;
 		var tabId = tabs.getAttribute( 'id' ) + ( ul.childNodes.length + 1 );
 		var li = metawidget.util.createElement( mw, 'li' );
 		if ( ul.childNodes.length === 0 ) {

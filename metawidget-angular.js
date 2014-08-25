@@ -627,7 +627,7 @@ var metawidget = metawidget || {};
 					var label = widget.childNodes[loop];
 
 					if ( label.tagName === 'LABEL' && label.childNodes.length === 2 ) {
-						var child = label.childNodes[0];
+						var child = label.firstChild;
 
 						if ( child.tagName === 'INPUT' ) {
 							if ( child.getAttribute( 'type' ) === 'radio' ) {
