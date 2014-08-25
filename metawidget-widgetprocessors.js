@@ -217,7 +217,7 @@ var metawidget = metawidget || {};
 				for ( loop = 0; loop < length; loop++ ) {
 					var childNode = widget.childNodes[loop];
 					if ( childNode.tagName === 'LABEL' ) {
-						var labelChildNode = childNode.firstChild;
+						var labelChildNode = childNode.childNodes[0];
 						if ( labelChildNode.tagName === 'INPUT' ) {
 
 							// Name must be common across group
@@ -246,7 +246,7 @@ var metawidget = metawidget || {};
 		if ( value !== undefined ) {
 			if ( widget.tagName === 'OUTPUT' || widget.tagName === 'TEXTAREA' ) {
 
-				if ( attributes.masked === true ) {
+				if ( metawidget.util.isTrueOrTrueString( attributes.masked )) {
 
 					// Special support for masked output
 
@@ -428,7 +428,7 @@ var metawidget = metawidget || {};
 				for ( var loop = 0, length = widget.childNodes.length; loop < length; loop++ ) {
 					var childNode = widget.childNodes[loop];
 					if ( childNode.tagName === 'LABEL' ) {
-						var labelChildNode = childNode.firstChild;
+						var labelChildNode = childNode.childNodes[0];
 						if ( labelChildNode.checked ) {
 
 							if ( binding.attributes.type === 'boolean' ) {

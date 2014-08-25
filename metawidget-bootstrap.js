@@ -1,4 +1,4 @@
-// Metawidget 3.9
+// Metawidget 3.9.5-SNAPSHOT
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -176,11 +176,11 @@ var metawidget = metawidget || {};
 				superLayoutWidget.call( this, widget, elementName, attributes, container, mw );
 
 				var outerDiv = container.childNodes[container.childNodes.length - 1];
-				if ( outerDiv.childNodes.length === 1 ) {
+				if ( outerDiv !== undefined && outerDiv.childNodes.length === 1 ) {
 					if ( attributes.title === null ) {
-						outerDiv.firstChild.setAttribute( 'class', config.widgetDivSpanAllClass );
+						outerDiv.childNodes[0].setAttribute( 'class', config.widgetDivSpanAllClass );
 					} else {
-						metawidget.util.appendToAttribute( outerDiv.firstChild, 'class', config.widgetDivOffsetClass );
+						metawidget.util.appendToAttribute( outerDiv.childNodes[0], 'class', config.widgetDivOffsetClass );
 					}
 				}
 			};
@@ -233,7 +233,7 @@ var metawidget = metawidget || {};
 
 		// New Tab
 
-		ul = tabs.firstChild;
+		ul = tabs.childNodes[0];
 		var tabId = tabs.getAttribute( 'id' ) + ( ul.childNodes.length + 1 );
 		var li = metawidget.util.createElement( mw, 'li' );
 		if ( ul.childNodes.length === 0 ) {

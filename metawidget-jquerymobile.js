@@ -48,7 +48,7 @@ var metawidget = metawidget || {};
 			fieldset.setAttribute( 'data-role', 'controlgroup' );
 
 			while ( widget.childNodes.length > 0 ) {
-				var label = widget.firstChild;
+				var label = widget.childNodes[0];
 				
 				if ( label.tagName !== 'LABEL' ) {
 					return widget;
@@ -56,7 +56,7 @@ var metawidget = metawidget || {};
 				
 				var id = widget.getAttribute( 'id' ) + widget.childNodes.length;
 				label.setAttribute( 'for', id );
-				var input = label.firstChild;
+				var input = label.childNodes[0];
 				input.setAttribute( 'id', id );
 
 				fieldset.appendChild( input );

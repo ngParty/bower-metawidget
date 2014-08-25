@@ -158,7 +158,7 @@ var metawidget = metawidget || {};
 
 					var lastOuterDiv = container.childNodes[container.childNodes.length - 1];
 					if ( lastOuterDiv.childNodes.length === 1 ) {
-						var lastWidgetDiv = lastOuterDiv.firstChild;
+						var lastWidgetDiv = lastOuterDiv.childNodes[0];
 						if ( lastWidgetDiv.childNodes.length > 0 ) {
 							var lastWidget = lastWidgetDiv.childNodes[lastWidgetDiv.childNodes.length - 1];
 							if ( lastWidget.tagName === 'INPUT' && ( lastWidget.getAttribute( 'type' ) === 'button' || lastWidget.getAttribute( 'type' ) === 'submit' ) ) {
@@ -326,7 +326,7 @@ var metawidget = metawidget || {};
 					var tr = metawidget.util.createElement( mw, 'tr' );
 					parent.appendChild( tr );
 					var td = metawidget.util.createElement( mw, 'td' );
-					td.setAttribute( 'colspan', _numberOfColumns * 2 );
+					td.setAttribute( 'colspan', _numberOfColumns * 3 );
 
 					if ( child.getAttribute( 'name' ) === 'header' ) {
 						if ( _headerStyleClass !== undefined ) {
@@ -343,7 +343,7 @@ var metawidget = metawidget || {};
 					// Append children, so as to unwrap the 'facet' tag
 
 					while ( child.childNodes.length > 0 ) {
-						td.appendChild( child.removeChild( child.firstChild ) );
+						td.appendChild( child.removeChild( child.childNodes[0] ) );
 					}
 				}
 			}

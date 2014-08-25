@@ -572,7 +572,7 @@ var metawidget = metawidget || {};
 				// WidgetBuilder)
 
 				if ( !widget.hasAttribute( 'ng-bind' ) ) {
-					if ( attributes.masked === true ) {
+					if ( metawidget.util.isTrueOrTrueString( attributes.masked ) ) {
 
 						// Special support for masked output
 
@@ -627,7 +627,7 @@ var metawidget = metawidget || {};
 					var label = widget.childNodes[loop];
 
 					if ( label.tagName === 'LABEL' && label.childNodes.length === 2 ) {
-						var child = label.firstChild;
+						var child = label.childNodes[0];
 
 						if ( child.tagName === 'INPUT' ) {
 							if ( child.getAttribute( 'type' ) === 'radio' ) {
