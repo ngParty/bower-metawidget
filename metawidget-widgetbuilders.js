@@ -52,21 +52,21 @@ var metawidget = metawidget || {};
 			_widgetBuilders = config.slice( 0 );
 		}
 
-		function _onStartEndBuild( functionName ) {
+		function _onStartEndBuild( functionName, mw ) {
 
 			for ( var loop = 0, length = _widgetBuilders.length; loop < length; loop++ ) {
 
 				var widgetBuilder = _widgetBuilders[loop];
 
 				if ( widgetBuilder[functionName] !== undefined ) {
-					widgetBuilder[functionName]();
+					widgetBuilder[functionName]( mw );
 				}
 			}
 		}
 
-		this.onStartBuild = function() {
+		this.onStartBuild = function( mw ) {
 
-			_onStartEndBuild( 'onStartBuild' );
+			_onStartEndBuild( 'onStartBuild', mw );
 		};
 
 		this.buildWidget = function( elementName, attributes, mw ) {
@@ -88,9 +88,9 @@ var metawidget = metawidget || {};
 			}
 		};
 
-		this.onEndBuild = function() {
+		this.onEndBuild = function( mw ) {
 
-			_onStartEndBuild( 'onEndBuild' );
+			_onStartEndBuild( 'onEndBuild', mw );
 		};
 	};
 
@@ -527,8 +527,18 @@ var metawidget = metawidget || {};
 
 			// Support column widths
 
+			var style = '';
+			
 			if ( attributes.columnWidth !== undefined ) {
-				th.setAttribute( 'width', attributes.columnWidth );
+				style += 'width:' + attributes.columnWidth + ';';
+			}
+
+			if ( attributes.columnAlign !== undefined ) {
+				style += 'text-align:' + attributes.columnAlign + ';';
+			}
+
+			if ( style !== '' ) {
+				th.setAttribute( 'style', style );
 			}
 
 			if ( attributes.type !== 'function' ) {
@@ -579,10 +589,20 @@ var metawidget = metawidget || {};
 
 			// Support column widths
 
+			var style = '';
+			
 			if ( columnAttributes.columnWidth !== undefined ) {
-				td.setAttribute( 'width', columnAttributes.columnWidth );
+				style += 'width:' + columnAttributes.columnWidth + ';';
 			}
 
+			if ( columnAttributes.columnAlign !== undefined ) {
+				style += 'text-align:' + columnAttributes.columnAlign + ';';
+			}
+
+			if ( style !== '' ) {
+				td.setAttribute( 'style', style );
+			}
+			
 			// Render either top-level value, or a property of that value
 
 			var valueToRender;

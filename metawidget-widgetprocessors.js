@@ -132,11 +132,13 @@ var metawidget = metawidget || {};
 
 	metawidget.widgetprocessor.SimpleBindingProcessor.prototype.processWidget = function( widget, elementName, attributes, mw ) {
 
+		var typeAndNames = metawidget.util.splitPath( mw.path );
+
 		if ( widget.tagName === 'INPUT' && ( widget.getAttribute( 'type' ) === 'button' || widget.getAttribute( 'type' ) === 'submit' ) ) {
 			widget.onclick = function() {
 
 				try {
-					return mw.toInspect[attributes.name]();
+					return metawidget.util.traversePath( mw.toInspect, typeAndNames.names )[attributes.name]();
 				} catch ( e ) {
 					if ( alert !== undefined ) {
 						alert( e );
@@ -150,7 +152,6 @@ var metawidget = metawidget || {};
 		}
 
 		var value;
-		var typeAndNames = metawidget.util.splitPath( mw.path );
 
 		if ( elementName === 'entity' ) {
 
