@@ -1,4 +1,4 @@
-// Metawidget 3.9.5-SNAPSHOT
+// Metawidget 4.0
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -469,7 +469,7 @@ var metawidget = metawidget || {};
 	 * framework has swapped out the widget.
 	 */
 
-	metawidget.widgetprocessor.SimpleBindingProcessor.prototype.getWidgetFromBinding = function( binding ) {
+	metawidget.widgetprocessor.SimpleBindingProcessor.prototype.getWidgetFromBinding = function( binding, mw ) {
 
 		return binding.widget;
 	};

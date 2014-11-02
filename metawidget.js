@@ -1,4 +1,4 @@
-// Metawidget 3.9.5-SNAPSHOT
+// Metawidget 4.0
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -264,9 +264,9 @@ var metawidget = metawidget || {};
 		// Support adding to the existing array of InspectionResultProcessors
 		// (it may be hard for clients to redefine the originals)
 
-		if ( config.addInspectionResultProcessors !== undefined ) {
-			for ( loop = 0; loop < config.addInspectionResultProcessors.length; loop++ ) {
-				this.inspectionResultProcessors.push( config.addInspectionResultProcessors[loop] );
+		if ( config.appendInspectionResultProcessors !== undefined ) {
+			for ( loop = 0; loop < config.appendInspectionResultProcessors.length; loop++ ) {
+				this.inspectionResultProcessors.push( config.appendInspectionResultProcessors[loop] );
 			}
 		}
 		if ( config.widgetBuilder !== undefined ) {
@@ -276,20 +276,17 @@ var metawidget = metawidget || {};
 			this.widgetProcessors = config.widgetProcessors.slice( 0 );
 		}
 
-		// Support prepending/adding to the existing array of WidgetProcessors
+		// Support prepending/appending to the existing array of WidgetProcessors
 		// (it may be hard for clients to redefine the originals)
-
-		// REFACTOR: name it appendInspectionResultProcessors,
-		// appendWidgetProcessors not addWidgetProcessors
 
 		if ( config.prependWidgetProcessors !== undefined ) {
 			for ( loop = 0; loop < config.prependWidgetProcessors.length; loop++ ) {
 				this.widgetProcessors.splice( loop, 0, config.prependWidgetProcessors[loop] );
 			}
 		}
-		if ( config.addWidgetProcessors !== undefined ) {
-			for ( loop = 0; loop < config.addWidgetProcessors.length; loop++ ) {
-				this.widgetProcessors.push( config.addWidgetProcessors[loop] );
+		if ( config.appendWidgetProcessors !== undefined ) {
+			for ( loop = 0; loop < config.appendWidgetProcessors.length; loop++ ) {
+				this.widgetProcessors.push( config.appendWidgetProcessors[loop] );
 			}
 		}
 		if ( config.layout !== undefined ) {
@@ -460,9 +457,11 @@ var metawidget = metawidget || {};
 
 		_endBuild( this, mw );
 
-		// Throw an event for interested parties (such as tests)
+		// Throw an event for interested parties (such as tests). Does not work on IE8
 
-		this.element.dispatchEvent( metawidget.util.createEvent( mw, 'buildEnd' ) );
+		if ( this.element.dispatchEvent !== undefined ) {
+			this.element.dispatchEvent( metawidget.util.createEvent( mw, 'buildEnd' ) );
+		}
 
 		//
 		// Private methods

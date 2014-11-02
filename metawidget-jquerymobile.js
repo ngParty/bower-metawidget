@@ -1,4 +1,4 @@
-// Metawidget 3.9.5-SNAPSHOT
+// Metawidget 4.0
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -92,6 +92,51 @@ var metawidget = metawidget || {};
 
 			return binding.widget;
 		};
+		
+		// Support arrays of checkboxes
+		
+		var _superBindToWidget = processor.bindToWidget;
+		processor.bindToWidget = function( widget, value, elementName, attributes, mw ) {
+
+			var toReturn = _superBindToWidget.call( this, widget, value, elementName, attributes, mw );
+
+			if ( widget.tagName === 'FIELDSET' && attributes.type === 'array' ) {
+
+				if ( value !== undefined ) {
+					var checkboxes = widget.childNodes;
+					for ( var loop = 0, length = checkboxes.length; loop < length; loop++ ) {
+						var childNode = checkboxes[loop];
+						if ( childNode.type !== 'checkbox' ) {
+							continue;
+						}
+						if ( value.indexOf( childNode.value ) !== -1 ) {
+							childNode.checked = true;
+						}
+					}
+				}
+				return true;
+			}
+
+			return toReturn;
+		};		
+		var _superSaveFromWidget = processor.saveFromWidget;
+		processor.saveFromWidget = function( binding, mw ) {
+
+			if ( binding.widget.tagName === 'FIELDSET' && binding.attributes.type === 'array' ) {
+				var toReturn = [];
+				var checkboxes = binding.widget.childNodes[0].childNodes;
+				for ( var loop = 0, length = checkboxes.length; loop < length; loop++ ) {
+					var childNode = checkboxes[loop];
+					var checkbox = $( childNode ).find( '[type=checkbox]' )[0];
+					if ( checkbox.checked ) {
+						toReturn.push( checkbox.value );
+					}
+				}
+				return toReturn;
+			}
+
+			return _superSaveFromWidget.call( this, binding, mw );
+		};		
 
 		return processor;
 	};
@@ -112,7 +157,7 @@ var metawidget = metawidget || {};
 					new metawidget.widgetbuilder.HtmlWidgetBuilder() ] ),
 			widgetProcessors: [ new metawidget.widgetprocessor.IdProcessor(), new metawidget.widgetprocessor.RequiredAttributeProcessor(),
 					new metawidget.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.widgetprocessor.DisabledAttributeProcessor(),
-					new metawidget.jquerymobile.widgetprocessor.JQueryMobileSimpleBindingProcessor(), new metawidget.jquerymobile.widgetprocessor.JQueryMobileWidgetProcessor() ],
+					new metawidget.jquerymobile.widgetprocessor.JQueryMobileWidgetProcessor(), new metawidget.jquerymobile.widgetprocessor.JQueryMobileSimpleBindingProcessor() ],
 			layout: new metawidget.layout.HeadingTagLayoutDecorator( new metawidget.layout.DivLayout( {
 				suppressLabelSuffixOnCheckboxes: true
 			} ) )
@@ -284,6 +329,21 @@ var metawidget = metawidget || {};
 			this._refresh();
 		},
 
+		/**
+		 * Save the contents of the Metawidget using a SimpleBindingProcessor.
+		 * <p>
+		 * This is a convenience method. To access other Metawidget APIs,
+		 * clients can use the 'getWidgetProcessor' method
+		 */
+		
+		save: function() {
+		
+			this._pipeline.getWidgetProcessor( function( widgetProcessor ) {
+
+				return widgetProcessor instanceof metawidget.widgetprocessor.SimpleBindingProcessor;
+			} ).save( this );
+		},
+		
 		getWidgetProcessor: function( testInstanceOf ) {
 
 			return this._pipeline.getWidgetProcessor( testInstanceOf );

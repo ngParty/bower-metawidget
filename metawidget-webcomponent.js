@@ -1,4 +1,4 @@
-// Metawidget 3.9.5-SNAPSHOT
+// Metawidget 4.0
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -10,7 +10,7 @@
 // for details.
 
 /**
- * Web Components wrapper for Metawidget.
+ * Web Component wrapper for Metawidget.
  * 
  * @author <a href="http://kennardconsulting.com">Richard Kennard</a>
  */
@@ -45,31 +45,6 @@ var metawidget = metawidget || {};
 		return metawidget.util.traversePath( lookup, typeAndNames.names );
 	}
 
-	/**
-	 * Initialize an internal 'metawidget.Metawidget' object, that will be
-	 * wrapped by this Web Component.
-	 */
-
-	function _initMetawidget() {
-
-		new metawidget.Metawidget( this, _lookupObject.call( this, 'config' ) );
-		this.buildWidgets();
-	}
-
-	/**
-	 * Unobserves the currently observed 'path' (if any).
-	 */
-
-	function _unobserve() {
-
-		if ( this.observer === undefined ) {
-			return;
-		}
-
-		Object.unobserve( this.getMetawidget().toInspect, this.observer );
-		this.observer = undefined;
-	}
-
 	if ( globalScope.document !== undefined && globalScope.document.registerElement !== undefined ) {
 
 		var metawidgetPrototype = Object.create( HTMLElement.prototype );
@@ -78,15 +53,34 @@ var metawidget = metawidget || {};
 		 * Upon attachedCallback, initialize an internal metawidget.Metawidget
 		 * object using the current 'config' attribute (if any).
 		 * <p>
-		 * During initialization, a Metawidget will take a copy of any
-		 * overridden child nodes, so this must be called after the document is
-		 * ready.
+		 * During initialization, a Metawidget create a shadow root so this must
+		 * be called after the document is ready.
 		 */
 
 		metawidgetPrototype.attachedCallback = function() {
 
-			_initMetawidget.call( this );
-		}
+			// First time in, create a shadow root. This allows us to preserve
+			// our original override nodes (if any)
+
+			var shadowRoot = this.createShadowRoot();
+
+			// Pipeline (private)
+
+			this._pipeline = new metawidget.Pipeline( shadowRoot );
+
+			// Configure defaults
+
+			this._pipeline.inspector = new metawidget.inspector.PropertyTypeInspector();
+			this._pipeline.widgetBuilder = new metawidget.widgetbuilder.CompositeWidgetBuilder( [ new metawidget.widgetbuilder.OverriddenWidgetBuilder(),
+					new metawidget.widgetbuilder.ReadOnlyWidgetBuilder(), new metawidget.widgetbuilder.HtmlWidgetBuilder() ] );
+			this._pipeline.widgetProcessors = [ new metawidget.widgetprocessor.IdProcessor(), new metawidget.widgetprocessor.RequiredAttributeProcessor(),
+					new metawidget.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.widgetprocessor.DisabledAttributeProcessor(),
+					new metawidget.widgetprocessor.SimpleBindingProcessor() ];
+			this._pipeline.layout = new metawidget.layout.HeadingTagLayoutDecorator( new metawidget.layout.TableLayout() );
+			this._pipeline.configure( [ _lookupObject.call( this, 'config' ), this.config ] );
+
+			this.buildWidgets();
+		};
 
 		/**
 		 * If 'path', 'readonly' or 'config' are updated, rebuild the
@@ -94,6 +88,10 @@ var metawidget = metawidget || {};
 		 */
 
 		metawidgetPrototype.attributeChangedCallback = function( attrName, oldVal, newVal ) {
+
+			if ( this._pipeline === undefined ) {
+				return;
+			}
 
 			switch ( attrName ) {
 				case 'path':
@@ -103,70 +101,138 @@ var metawidget = metawidget || {};
 					this.buildWidgets();
 					break;
 				case 'config':
-					_initMetawidget();
+					this._pipeline.configure( _lookupObject.call( this, 'config' ) );
 					break;
 			}
-		}
+		};
+
+		/**
+		 * Clear all child elements from the shadow root.
+		 */
+
+		metawidgetPrototype.clearWidgets = function() {
+
+			while ( this.shadowRoot.childNodes.length > 0 ) {
+				this.shadowRoot.removeChild( this.shadowRoot.childNodes[0] );
+			}
+		};
 
 		/**
 		 * Rebuild the Metawidget, using the value of the current 'path'
 		 * attribute.
+		 * 
+		 * @param inspectionResult
+		 *            optional inspectionResult to use
 		 */
 
-		metawidgetPrototype.buildWidgets = function() {
+		metawidgetPrototype.buildWidgets = function( inspectionResult ) {
 
-			// Unobserve
+			// Take a copy of the original nodes. These may be inserted into the
+			// shadow DOM if the WidgetBuilders/Layouts wish
 
-			_unobserve.call( this );
+			this.overriddenNodes = [];
+
+			for ( var loop = 0, length = this.childNodes.length; loop < length; loop++ ) {
+				if ( this.childNodes[loop].nodeType === 1 ) {
+					this.overriddenNodes.push( this.childNodes[loop].cloneNode( true ) );
+				}
+			}
 
 			// Traverse and build
 
-			var mw = this.getMetawidget();
-			mw.toInspect = _lookupObject.call( this, 'path' );
-			mw.readOnly = metawidget.util.isTrueOrTrueString( this.getAttribute( 'readonly' ) );
-			mw.buildWidgets();
+			if ( this.getAttribute( 'path' ) !== null ) {
 
-			// Observe for next time. toInspect may be undefined because
-			// Metawidget can be used purely for layout
+				this.path = this.getAttribute( 'path' );
+				this.readOnly = metawidget.util.isTrueOrTrueString( this.getAttribute( 'readonly' ) );
 
-			if ( mw.toInspect !== undefined ) {
+				// Inspect (if necessary)
 
-				var that = this;
-				this.observer = function() {
+				if ( inspectionResult === undefined ) {
 
-					that.buildWidgets.call( that );
+					// Safeguard against improperly implementing:
+					// http://blog.kennardconsulting.com/2013/02/metawidget-and-rest.html
+
+					if ( arguments.length > 0 ) {
+						throw new Error( "Calling buildWidgets( undefined ) may cause infinite loop. Check your argument, or pass no arguments instead" );
+					}
+
+					var splitPath = metawidget.util.splitPath( this.path );
+					this.toInspect = globalScope[splitPath.type];
+
+					inspectionResult = this._pipeline.inspect( this.toInspect, splitPath.type, splitPath.names, this );
 				}
-
-				Object.observe( mw.toInspect, this.observer );
 			}
-		}
+
+			// Build widgets
+
+			this._pipeline.buildWidgets( inspectionResult, this );
+
+			// Note: we don't attempt to use Object.observe on this.toInspect,
+			// at least not by default (clients could observe and call
+			// buildWidgets if they want). AngularJS Metawidget does this, but
+			// in Angular all sub-widgets are 2-way bound by default, so you
+			// never risk losing data when you rebuild. In Web Components,
+			// however, sub-widget values are only saved when clients call
+			// save()
+		};
+
+		/**
+		 * Returns a nested version of this same Metawidget, using the given
+		 * attributes.
+		 * <p>
+		 * Subclasses should override this method to use their preferred widget
+		 * creation methodology.
+		 */
+
+		metawidgetPrototype.buildNestedMetawidget = function( attributes, config ) {
+
+			var nestedMetawidget = metawidget.util.createElement( this, 'x-metawidget' );
+
+			// Duck-type our 'pipeline' as the 'config' of the nested
+			// Metawidget. This neatly passes everything down, including a
+			// decremented 'maximumInspectionDepth'
+
+			nestedMetawidget.setAttribute( 'path', metawidget.util.appendPath( attributes, this ) );
+			nestedMetawidget.setAttribute( 'readonly', this.readOnly || metawidget.util.isTrueOrTrueString( attributes.readOnly ) );
+			nestedMetawidget.config = this._pipeline;
+
+			return nestedMetawidget;
+		};
 
 		/**
 		 * Save the contents of the Metawidget using a SimpleBindingProcessor.
 		 * <p>
 		 * This is a convenience method. To access other Metawidget APIs,
-		 * clients can use the 'getMetawidget' method. For example
-		 * 'document.getElementById(...).getMeta.getWidgetProcessor(...)'
+		 * clients can use the 'getWidgetProcessor' method
 		 */
 
 		metawidgetPrototype.save = function() {
 
-			var mw = this.getMetawidget();
-
-			mw.getWidgetProcessor( function( widgetProcessor ) {
+			this.getWidgetProcessor( function( widgetProcessor ) {
 
 				return widgetProcessor instanceof metawidget.widgetprocessor.SimpleBindingProcessor;
-			} ).save( mw );
-		}
+			} ).save( this );
+		};
 
 		/**
-		 * Upon detachedCallback, cleanup any observers.
+		 * Useful for WidgetBuilders to perform nested inspections (eg. for
+		 * Collections).
 		 */
 
-		metawidgetPrototype.detachedCallback = function() {
+		metawidgetPrototype.inspect = function( toInspect, type, names ) {
 
-			_unobserve.call( this );
-		}
+			return this._pipeline.inspect( toInspect, type, names, this );
+		};
+
+		metawidgetPrototype.getWidgetProcessor = function( testInstanceOf ) {
+
+			return this._pipeline.getWidgetProcessor( testInstanceOf );
+		};
+
+		metawidgetPrototype.setLayout = function( layout ) {
+
+			this._pipeline.layout = layout;
+		};
 
 		// Register Metawidget as a Web Component
 
