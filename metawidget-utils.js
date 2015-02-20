@@ -1,4 +1,4 @@
-// Metawidget 4.0
+// Metawidget 4.1
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -116,7 +116,10 @@ var metawidget = metawidget || {};
 		var lastChar = ' ';
 
 		for ( var loop = 0; loop < name.length; loop++ ) {
-			var c = name[loop];
+
+			// Use 'charAt', not '[]' for IE compatibility
+
+			var c = name.charAt( loop );
 
 			if ( first === true ) {
 				uncamelCasedName += c.toUpperCase();
@@ -302,7 +305,14 @@ var metawidget = metawidget || {};
 		var indexOf = anEnum.indexOf( value );
 
 		if ( indexOf === -1 || indexOf >= enumTitles.length ) {
-			return value;
+
+			// ...(cope with Java's UiLookup only supporting strings)...
+
+			indexOf = anEnum.indexOf( '' + value );
+
+			if ( indexOf === -1 || indexOf >= enumTitles.length ) {
+				return value;
+			}
 		}
 
 		// ...and return its equivalent title (if any)
@@ -677,7 +687,16 @@ var metawidget = metawidget || {};
 
 		if ( existingAttribute === null ) {
 			widget.setAttribute( attributeName, toAppend );
-		} else if ( existingAttribute !== toAppend && existingAttribute.indexOf( toAppend + separator ) === -1 && existingAttribute.indexOf( separator + toAppend ) === -1 ) {
+			return;
+		}
+		
+		// IE compatibility (convert DispHTMLStyle to a string)
+		
+		if ( existingAttribute.toString !== undefined ) {
+			existingAttribute = existingAttribute.toString();
+		}
+		
+		if ( existingAttribute !== toAppend && existingAttribute.indexOf( toAppend + separator ) === -1 && existingAttribute.indexOf( separator + toAppend ) === -1 ) {
 			widget.setAttribute( attributeName, existingAttribute + separator + toAppend );
 		}
 	};
@@ -735,6 +754,34 @@ var metawidget = metawidget || {};
 
 		return event;
 	};
+
+	/**
+	 * Finds the indexOf the given item in the given array.
+	 * 
+	 * @return -1 if either array or item are undefined, otherwise indexOf
+	 */
+
+	metawidget.util.niceIndexOf = function( array, item ) {
+
+		if ( array === undefined || item === undefined ) {
+			return -1;
+		}
+
+		return array.indexOf( item );
+	}
+
+	/**
+	 * Backward compatibility for IE.
+	 */
+
+	metawidget.util.hasAttribute = function( element, attribute ) {
+
+		if ( element.hasAttribute !== undefined ) {
+			return element.hasAttribute( attribute );
+		}
+
+		return ( element.getAttribute( attribute ) !== null );
+	}
 
 	//
 	// Private methods

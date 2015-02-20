@@ -1,4 +1,4 @@
-// Metawidget 4.0
+// Metawidget 4.1
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -56,7 +56,7 @@ var metawidget = metawidget || {};
 
 		// Number
 
-		if ( attributes.type === 'number' ) {
+		if ( attributes.type === 'number' || attributes.type === 'integer' ) {
 
 			if ( attributes.minimum && attributes.maximum ) {
 				var slider = metawidget.util.createElement( mw, 'div' );

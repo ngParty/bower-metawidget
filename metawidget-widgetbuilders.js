@@ -1,4 +1,4 @@
-// Metawidget 4.0
+// Metawidget 4.1
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -152,7 +152,7 @@ var metawidget = metawidget || {};
 			return metawidget.util.createElement( mw, 'stub' );
 		}
 
-		if ( attributes['enum'] !== undefined || attributes.type === 'string' || attributes.type === 'boolean' || attributes.type === 'number' || attributes.type === 'date'
+		if ( attributes['enum'] !== undefined || attributes.type === 'string' || attributes.type === 'boolean' || attributes.type === 'number' || attributes.type === 'integer' || attributes.type === 'date'
 				|| attributes.type === 'color' ) {
 			return metawidget.util.createElement( mw, 'output' );
 		}
@@ -294,7 +294,7 @@ var metawidget = metawidget || {};
 
 			// Number
 
-			if ( attributes.type === 'number' ) {
+			if ( attributes.type === 'number' || attributes.type === 'integer' ) {
 
 				if ( attributes.minimum !== undefined && attributes.maximum !== undefined ) {
 					var range = metawidget.util.createElement( mw, 'input' );
@@ -464,6 +464,15 @@ var metawidget = metawidget || {};
 
 					var columnAttributes = this.addHeaderRow( thead, inspectionResultProperties, mw );
 
+					// Create footer (optional)
+					
+					var tfoot = metawidget.util.createElement( mw, 'tfoot' );
+					this.addFooterRow( tfoot, columnAttributes );
+					
+					if ( tfoot.childNodes.length > 0 ) {
+						table.appendChild( tfoot );
+					}
+
 					// Create body
 
 					table.appendChild( tbody );
@@ -605,12 +614,10 @@ var metawidget = metawidget || {};
 			
 			// Render either top-level value, or a property of that value
 
-			var valueToRender;
+			var valueToRender = value[row];
 
-			if ( columnAttributes.name === undefined ) {
-				valueToRender = value[row];
-			} else {
-				valueToRender = value[row][columnAttributes.name];
+			if ( valueToRender !== undefined && columnAttributes.name !== undefined ) {
+				valueToRender = valueToRender[columnAttributes.name];
 			}
 
 			// Render either nothing, a nested read-only Metawidget, or a
@@ -673,6 +680,11 @@ var metawidget = metawidget || {};
 			tr.appendChild( td );
 
 			return td;
+		};
+		
+		this.addFooterRow = function( tfoot, columnAttributes ) {
+			
+			// No footer by default
 		};
 	};
 } )();

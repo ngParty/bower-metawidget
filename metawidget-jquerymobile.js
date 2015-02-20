@@ -1,4 +1,4 @@
-// Metawidget 4.0
+// Metawidget 4.1
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -33,7 +33,7 @@ var metawidget = metawidget || {};
 
 	metawidget.jquerymobile.widgetprocessor.JQueryMobileWidgetProcessor = function() {
 
-		if ( !( this instanceof metawidget.jquerymobile.widgetprocessor.JQueryMobileWidgetProcessor ) ) {
+		if ( ! ( this instanceof metawidget.jquerymobile.widgetprocessor.JQueryMobileWidgetProcessor ) ) {
 			throw new Error( "Constructor called as a function" );
 		}
 	};
@@ -49,11 +49,11 @@ var metawidget = metawidget || {};
 
 			while ( widget.childNodes.length > 0 ) {
 				var label = widget.childNodes[0];
-				
+
 				if ( label.tagName !== 'LABEL' ) {
 					return widget;
 				}
-				
+
 				var id = widget.getAttribute( 'id' ) + widget.childNodes.length;
 				label.setAttribute( 'for', id );
 				var input = label.childNodes[0];
@@ -71,7 +71,7 @@ var metawidget = metawidget || {};
 
 	metawidget.jquerymobile.widgetprocessor.JQueryMobileSimpleBindingProcessor = function() {
 
-		if ( !( this instanceof metawidget.jquerymobile.widgetprocessor.JQueryMobileSimpleBindingProcessor ) ) {
+		if ( ! ( this instanceof metawidget.jquerymobile.widgetprocessor.JQueryMobileSimpleBindingProcessor ) ) {
 			throw new Error( "Constructor called as a function" );
 		}
 
@@ -92,9 +92,9 @@ var metawidget = metawidget || {};
 
 			return binding.widget;
 		};
-		
+
 		// Support arrays of checkboxes
-		
+
 		var _superBindToWidget = processor.bindToWidget;
 		processor.bindToWidget = function( widget, value, elementName, attributes, mw ) {
 
@@ -118,7 +118,7 @@ var metawidget = metawidget || {};
 			}
 
 			return toReturn;
-		};		
+		};
 		var _superSaveFromWidget = processor.saveFromWidget;
 		processor.saveFromWidget = function( binding, mw ) {
 
@@ -136,7 +136,7 @@ var metawidget = metawidget || {};
 			}
 
 			return _superSaveFromWidget.call( this, binding, mw );
-		};		
+		};
 
 		return processor;
 	};
@@ -159,7 +159,10 @@ var metawidget = metawidget || {};
 					new metawidget.widgetprocessor.PlaceholderAttributeProcessor(), new metawidget.widgetprocessor.DisabledAttributeProcessor(),
 					new metawidget.jquerymobile.widgetprocessor.JQueryMobileWidgetProcessor(), new metawidget.jquerymobile.widgetprocessor.JQueryMobileSimpleBindingProcessor() ],
 			layout: new metawidget.layout.HeadingTagLayoutDecorator( new metawidget.layout.DivLayout( {
-				suppressLabelSuffixOnCheckboxes: true
+				divStyleClasses: [ 'ui-field-contain' ],
+				suppressDivAroundLabel: true,
+				suppressDivAroundWidget: true,
+				suppressLabelSuffixOnCheckboxes: true,
 			} ) )
 		},
 
@@ -209,7 +212,7 @@ var metawidget = metawidget || {};
 					}
 				}
 			};
-
+			
 			// Force a useful convention from JQuery UI that JQuery Mobile
 			// doesn't seem to have (yet?)
 
@@ -236,6 +239,14 @@ var metawidget = metawidget || {};
 
 				var childNode = element.childNodes[loop];
 				element.removeChild( childNode );
+
+				// De-augment before pushing, so that the widget works
+				// seamlessly with binding/override matching
+
+				if ( childNode.getAttribute( 'class' ) !== null && childNode.getAttribute( 'class' ).indexOf( 'ui-' ) !== -1 && childNode.childNodes.length === 1 ) {
+					childNode = childNode.childNodes[0];
+				}
+
 				this._overriddenNodes.push( childNode );
 			}
 		},
@@ -302,12 +313,12 @@ var metawidget = metawidget || {};
 		/**
 		 * Overridden to use JQuery.empty (safer for memory leaks).
 		 */
-		
+
 		clearWidgets: function() {
-		
+
 			$( this.getElement() ).empty();
 		},
-		
+
 		/**
 		 * Inspect the given toInspect/path and build widgets.
 		 * <p>
@@ -335,15 +346,15 @@ var metawidget = metawidget || {};
 		 * This is a convenience method. To access other Metawidget APIs,
 		 * clients can use the 'getWidgetProcessor' method
 		 */
-		
+
 		save: function() {
-		
+
 			this._pipeline.getWidgetProcessor( function( widgetProcessor ) {
 
 				return widgetProcessor instanceof metawidget.widgetprocessor.SimpleBindingProcessor;
 			} ).save( this );
 		},
-		
+
 		getWidgetProcessor: function( testInstanceOf ) {
 
 			return this._pipeline.getWidgetProcessor( testInstanceOf );

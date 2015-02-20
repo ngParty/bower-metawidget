@@ -1,4 +1,4 @@
-// Metawidget 4.0
+// Metawidget 4.1
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -82,6 +82,22 @@ var metawidget = metawidget || {};
 
 					// Observe
 
+					var _watchConfig = scope.$watch( 'config', function( newValue, oldValue ) {
+
+						// Watch for config changes. These are rare, but
+						// otherwise we'd need to provide a way to externally
+						// trigger _buildWidgets
+						//
+						// Note: to be proper, we should process config changes
+						// *before* data changes, in the event they both change
+						// at once
+
+						if ( newValue !== oldValue ) {
+							mw.configure( newValue );
+							_buildWidgets();
+						}
+					} );
+
 					var _watchModel = scope.$watch( 'ngModel', function( newValue ) {
 
 						// Cannot test against mw.toInspect, because is pointed
@@ -110,18 +126,6 @@ var metawidget = metawidget || {};
 						}
 					} );
 
-					var _watchConfig = scope.$watch( 'config', function( newValue, oldValue ) {
-
-						// Watch for config changes. These are rare, but
-						// otherwise we'd need to provide a way to externally
-						// trigger _buildWidgets
-
-						if ( newValue !== oldValue ) {
-							mw.configure( newValue );
-							_buildWidgets();
-						}
-					} );
-
 					var _watchNgShow = scope.$watch( 'ngShow', function( newValue, oldValue ) {
 
 						if ( newValue !== oldValue ) {
@@ -142,9 +146,9 @@ var metawidget = metawidget || {};
 
 					element.on( '$destroy', function() {
 
+						_watchConfig();
 						_watchModel();
 						_watchReadOnly();
-						_watchConfig();
 						_watchNgShow();
 						_watchNgHide();
 					} );
@@ -277,7 +281,7 @@ var metawidget = metawidget || {};
 
 				jqElement.html( '' );
 			}
-		}
+		};
 
 		this.buildWidgets = function( inspectionResult ) {
 
@@ -619,9 +623,6 @@ var metawidget = metawidget || {};
 			} else if ( attributes['enum'] !== undefined && ( attributes.type === 'array' || attributes.componentType !== undefined ) && widget.tagName === 'DIV' ) {
 
 				// Special support for multi-selects and radio buttons
-				//
-				// Note: it'd be nice to extend this to SELECT boxes too, once
-				// https://github.com/angular/angular.js/issues/7994
 
 				for ( var loop = 0, length = widget.childNodes.length; loop < length; loop++ ) {
 					var label = widget.childNodes[loop];
@@ -645,26 +646,45 @@ var metawidget = metawidget || {};
 						}
 					}
 				}
-			} else if ( widget.tagName === 'INPUT' || widget.tagName === 'SELECT' || widget.tagName === 'TEXTAREA' ) {
+
+			} else if ( widget.tagName === 'SELECT' ) {
+
+				widget.setAttribute( 'ng-model', binding );
+
+				// Special support for non-string selects
+
+				if ( attributes.type === 'boolean' || attributes.type === 'integer' || attributes.type === 'number' ) {
+					for ( var loop = 0, length = widget.childNodes.length; loop < length; loop++ ) {
+
+						var child = widget.childNodes[loop];
+
+						if ( child.tagName === 'OPTION' && child.value !== '' ) {
+							child.setAttribute( 'ng-selected', binding + "==" + child.value );
+						}
+					}
+				}
+
+			} else if ( widget.tagName === 'INPUT' || widget.tagName === 'TEXTAREA' ) {
 				widget.setAttribute( 'ng-model', binding );
 			}
 
 			// Validation
 
-			if ( attributes.required !== undefined ) {
-				widget.setAttribute( 'ng-required', attributes.required );
-			}
+			if ( !metawidget.util.isTrueOrTrueString( attributes.readOnly ) ) {
 
-			if ( attributes.minLength !== undefined ) {
-				widget.setAttribute( 'ng-minlength', attributes.minLength );
-			}
+				if ( attributes.required !== undefined ) {
+					widget.setAttribute( 'ng-required', attributes.required );
+				}
 
-			if ( attributes.maxLength !== undefined ) {
-				widget.setAttribute( 'ng-maxlength', attributes.maxLength );
+				if ( attributes.minLength !== undefined ) {
+					widget.setAttribute( 'ng-minlength', attributes.minLength );
+				}
 
-				// (maxlength set by WidgetBuilder)
+				if ( attributes.maxLength !== undefined ) {
+					widget.setAttribute( 'ng-maxlength', attributes.maxLength );
 
-				widget.removeAttribute( 'maxlength' );
+					// (retain maxlength set by HtmlWidgetBuilder)
+				}
 			}
 
 			return widget;

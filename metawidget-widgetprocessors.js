@@ -1,4 +1,4 @@
-// Metawidget 4.0
+// Metawidget 4.1
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -41,7 +41,7 @@ var metawidget = metawidget || {};
 		// Dangerous to reassign an id. For example, some JQuery UI widgets
 		// assign temporary ids when they wrap widgets
 
-		if ( !widget.hasAttribute( 'id' ) ) {
+		if ( !metawidget.util.hasAttribute( widget, 'id' )) {
 			var id = metawidget.util.getId( elementName, attributes, mw );
 
 			if ( id !== undefined ) {
@@ -197,7 +197,7 @@ var metawidget = metawidget || {};
 
 		var isBindable = ( widget.tagName === 'INPUT' || widget.tagName === 'SELECT' || widget.tagName === 'TEXTAREA' );
 
-		if ( isBindable === true && widget.hasAttribute( 'id' ) ) {
+		if ( isBindable === true && metawidget.util.hasAttribute( widget, 'id' )) {
 
 			// Standard HTML needs 'name', not 'id', for binding
 
@@ -402,6 +402,19 @@ var metawidget = metawidget || {};
 
 		if ( widget.getAttribute( 'type' ) === 'checkbox' ) {
 			return widget.checked;
+		}
+
+		if ( binding.attributes.type === 'integer' ) {
+
+			var parsed = parseInt( widget.value );
+
+			// Avoid pushing back 'NaN'
+
+			if ( isNaN( parsed ) ) {
+				return undefined;
+			}
+
+			return parsed;
 		}
 
 		if ( binding.attributes.type === 'number' ) {

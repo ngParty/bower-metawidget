@@ -1,4 +1,4 @@
-// Metawidget 4.0
+// Metawidget 4.1
 //
 // This file is dual licensed under both the LGPL
 // (http://www.gnu.org/licenses/lgpl-2.1.html) and the EPL
@@ -187,6 +187,15 @@ var metawidget = metawidget || {};
 		metawidgetPrototype.buildNestedMetawidget = function( attributes, config ) {
 
 			var nestedMetawidget = metawidget.util.createElement( this, 'x-metawidget' );
+
+			// Wire up getMetawidget manually, because shadowRoot is not
+			// initialized until attachedCallback. This is important for
+			// SimpleBindingProcessor and nested Metawidgets
+			
+			nestedMetawidget.getMetawidget = function() {
+
+				return nestedMetawidget;
+			};
 
 			// Duck-type our 'pipeline' as the 'config' of the nested
 			// Metawidget. This neatly passes everything down, including a
