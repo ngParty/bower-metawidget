@@ -2,15 +2,7 @@
   "name": "bower-metawidget",
   "version": "1.0.0",
   "description": "This repo is for distribution on `bower`. The source for this module is in the [main Metawidget repo](https://github.com/metawidget/metawidget). Please file issues and pull requests against that repo.",
-  "main": [
-    "metawidget-inspectionresultprocessors.js",
-    "metawidget-inspectors.js",
-    "metawidget-layouts.js",
-    "metawidget-utils.js",
-    "metawidget-widgetbuilders.js",
-    "metawidget-widgetprocessors.js",
-    "metawidget.js"
-  ],
+  "main": "metawidget.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -20,10 +12,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": [
-    "EPL-1.0",
-    "LGPL-2.1"
-  ],
+  "license": "(EPL-1.0 OR LGPL-2.1)",
   "bugs": {
     "url": "https://github.com/ngParty/bower-metawidget/issues"
   },
