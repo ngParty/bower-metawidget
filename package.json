@@ -1,6 +1,6 @@
 {
   "name": "bower-metawidget",
-  "version": "1.0.0",
+  "version": "4.1.0",
   "description": "This repo is for distribution on `bower`. The source for this module is in the [main Metawidget repo](https://github.com/metawidget/metawidget). Please file issues and pull requests against that repo.",
   "main": "metawidget.js",
   "scripts": {
